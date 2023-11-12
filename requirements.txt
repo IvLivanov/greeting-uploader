@@ -3,3 +3,5 @@ numpy
 pandas
 pydeck
 streamlit
+s3fs
+st-files-connection

@@ -1,51 +1,55 @@
-# Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import streamlit as st
+import s3fs
 from streamlit.logger import get_logger
 
 LOGGER = get_logger(__name__)
 
-
 def run():
     st.set_page_config(
         page_title="Hello",
-        page_icon="👋",
+        page_icon="👋"
     )
 
-    st.write("# Welcome to Streamlit! 👋")
+    # Create S3 file system object
+    s3 = s3fs.S3FileSystem()
+    #####################Uploading New content:
+    # File uploader to get new content
+    new_content = st.text_area("Новый текст для родителей")
 
-    st.sidebar.success("Select a demo above.")
+    # Audio file uploader restricted to MP3
+    audio_file = st.file_uploader("Новый аудиофайл (только .mp3)!", type=["mp3"])
 
-    st.markdown(
-        """
-        Streamlit is an open-source app framework built specifically for
-        Machine Learning and Data Science projects.
-        **👈 Select a demo from the sidebar** to see some examples
-        of what Streamlit can do!
-        ### Want to learn more?
-        - Check out [streamlit.io](https://streamlit.io)
-        - Jump into our [documentation](https://docs.streamlit.io)
-        - Ask a question in our [community
-          forums](https://discuss.streamlit.io)
-        ### See more complex demos
-        - Use a neural net to [analyze the Udacity Self-driving Car Image
-          Dataset](https://github.com/streamlit/demo-self-driving)
-        - Explore a [New York City rideshare dataset](https://github.com/streamlit/demo-uber-nyc-pickups)
-    """
-    )
+    # Save button
+    if st.button("Save"):
+        save_content_to_s3(new_content, audio_file)
+    
+    ###############################Displaying old content
+    # Read current content from S3
+    with s3.open("streamlitgreetingscard/greetings.txt", "r") as file:
+        current_content = file.read()
 
+    # Print results.
+    st.write("# Как оно выглядит сейчас:")
+    st.write(current_content)
+
+    # Play audio if file is uploaded
+    with s3.open("streamlitgreetingscard/audio_file.mp3", "rb") as audio_file:
+        audio_content = audio_file.read()
+        st.audio(audio_content, format='audio/mp3', start_time=0)
+
+def save_content_to_s3(text_content, audio_file):
+    # Create S3 file system object
+    s3 = s3fs.S3FileSystem()
+
+    # Write text content to S3
+    with s3.open("streamlitgreetingscard/greetings.txt", "w") as text_file:
+        text_file.write(text_content)
+
+    # Write audio file to S3
+    if audio_file:
+        audio_path = "streamlitgreetingscard/audio_file." + audio_file.name.split(".")[-1]
+        with s3.open(audio_path, "wb") as audio_s3_file:
+            audio_s3_file.write(audio_file.read())
 
 if __name__ == "__main__":
     run()
