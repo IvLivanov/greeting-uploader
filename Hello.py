@@ -9,7 +9,6 @@ def run():
         page_title="Hello",
         page_icon="👋"
     )
-
     # Create S3 file system object
     s3 = s3fs.S3FileSystem()
     #####################Uploading New content:
@@ -35,7 +34,7 @@ def run():
     # Play audio if file is uploaded
     with s3.open("streamlitgreetingscard/audio_file.mp3", "rb") as audio_file:
         audio_content = audio_file.read()
-        st.audio(audio_content, format='audio/mp3', start_time=0)
+        st.audio(audio_content, format='audio/mpeg', start_time=0)
 
 def save_content_to_s3(text_content, audio_file):
     # Create S3 file system object
