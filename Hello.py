@@ -42,8 +42,9 @@ def save_content_to_s3(text_content, audio_file):
     s3 = s3fs.S3FileSystem()
 
     # Write text content to S3
-    with s3.open("streamlitgreetingscard/greetings.txt", "w") as text_file:
-        text_file.write(text_content)
+    if len(text_content) > 1:
+        with s3.open("streamlitgreetingscard/greetings.txt", "w") as text_file:
+            text_file.write(text_content)
 
     # Write audio file to S3
     if audio_file:
