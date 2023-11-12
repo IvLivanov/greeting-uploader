@@ -20,7 +20,7 @@ def run():
     audio_file = st.file_uploader("Новый аудиофайл (только .mp3)!", type=["mp3"])
 
     # Save button
-    if st.button("Save"):
+    if st.button("Сохранить"):
         save_content_to_s3(new_content, audio_file)
     
     ###############################Displaying old content
